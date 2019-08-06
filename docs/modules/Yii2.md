@@ -2,9 +2,12 @@
 
 
 This module provides integration with [Yii framework](http://www.yiiframework.com/) (2.0).
-It initializes Yii framework in test environment and provides actions for functional testing.
+It initializes the Yii framework in a test environment and provides actions for functional testing.
+
 ## Application state during testing
+
 This section details what you can expect when using this module.
+
 * You will get a fresh application in `\Yii::$app` at the start of each test (available in the test and in `_before()`).
 * Inside your test you may change application state; however these changes will be lost when doing a request if you have enabled `recreateApplication`.
 * When executing a request via one of the request functions the `request` and `response` component are both recreated.
@@ -14,23 +17,22 @@ will warn you if you try to connect to the same database twice but we cannot reu
 
 ## Config
 
-* `configFile` *required* - the path to the application config file. File should be configured for test environment and return configuration array.
+* `configFile` *required* - path to the application config file. The file should be configured for the test environment and return a configuration array.
 * `entryUrl` - initial application url (default: http://localhost/index-test.php).
-* `entryScript` - front script title (like: index-test.php). If not set - taken from entryUrl.
-* `transaction` - (default: true) wrap all database connection inside a transaction and roll it back after the test. Should be disabled for acceptance testing..
-* `cleanup` - (default: true) cleanup fixtures after the test
-* `ignoreCollidingDSN` - (default: false) When 2 database connections use the same DSN but different settings an exception will be thrown, set this to true to disable this behavior.
-* `fixturesMethod` - (default: _fixtures) Name of the method used for creating fixtures.
-* `responseCleanMethod` - (default: clear) Method for cleaning the response object. Note that this is only for multiple requests inside a single test case.
-Between test casesthe whole application is always recreated
-* `requestCleanMethod` - (default: recreate) Method for cleaning the request object. Note that this is only for multiple requests inside a single test case.
-Between test cases the whole application is always recreated
-* `recreateComponents` - (default: []) Some components change their state making them unsuitable for processing multiple requests. In production this is usually
+* `entryScript` - front script title (like: index-test.php). If not set it's taken from `entryUrl`.
+* `transaction` - (default: `true`) wrap all database connection inside a transaction and roll it back after the test. Should be disabled for acceptance testing.
+* `cleanup` - (default: `true`) cleanup fixtures after the test
+* `ignoreCollidingDSN` - (default: `false`) When 2 database connections use the same DSN but different settings an exception will be thrown. Set this to true to disable this behavior.
+* `fixturesMethod` - (default: `_fixtures`) Name of the method used for creating fixtures.
+* `responseCleanMethod` - (default: `clear`) Method for cleaning the response object. Note that this is only for multiple requests inside a single test case. Between test cases the whole application is always recreated.
+* `requestCleanMethod` - (default: `recreate`) Method for cleaning the request object. Note that this is only for multiple requests inside a single test case. Between test cases the whole application is always recreated.
+* `recreateComponents` - (default: `[]`) Some components change their state making them unsuitable for processing multiple requests. In production this is usually
 not a problem since web apps tend to die and start over after each request. This allows you to list application components that need to be recreated before each request.
-As a consequence, any components specified here should not be changed inside a test since those changes will get regarded.
-You can use this module by setting params in your functional.suite.yml:
+As a consequence, any components specified here should not be changed inside a test since those changes will get discarded.
 * `recreateApplication` - (default: false) whether to recreate the whole application before each request
+
 You can use this module by setting params in your functional.suite.yml:
+
 ```yaml
 actor: FunctionalTester
 modules:
@@ -41,9 +43,10 @@ modules:
 
 ### Parts
 
-By default all available methods are loaded, but you can specify parts to select only needed actions and avoid conflicts.
+By default all available methods are loaded, but you can also use the `part` option to select only the needed actions and to avoid conflicts.
+The avilable parts are:
 
-* `init` - use module only for initialization (for acceptance tests).
+* `init` - use the module only for initialization (for acceptance tests).
 * `orm` - include only `haveRecord/grabRecord/seeRecord/dontSeeRecord` actions.
 * `fixtures` - use fixtures inside tests with `haveFixtures/grabFixture/grabFixtures` actions.
 * `email` - include email actions `seeEmailsIsSent/grabLastSentEmail/...`
@@ -81,7 +84,7 @@ modules:
             browser: firefox
         - Yii2:
             configFile: 'config/test.php'
-            part: ORM # allow to use AR methods
+            part: orm # allow to use AR methods
             transaction: false # don't wrap test in transaction
             cleanup: false # don't cleanup the fixtures
             entryScript: index-test.php
@@ -90,7 +93,7 @@ modules:
 ## Fixtures
 
 This module allows to use [fixtures](http://www.yiiframework.com/doc-2.0/guide-test-fixtures.html) inside a test. There are two options for that.
-Fixtures can be loaded using [haveFixtures](#haveFixtures) method inside a test:
+Fixtures can be loaded with the [haveFixtures](#haveFixtures) method inside a test:
 
 ```php
 <?php
@@ -98,7 +101,7 @@ $I->haveFixtures(['posts' => PostsFixture::className()]);
 ```
 
 or, if you need to load fixtures before the test, you
-can specify fixtures with `_fixtures` method of a testcase:
+can specify fixtures in the `_fixtures` method of a testcase:
 
 ```php
 <?php
@@ -110,15 +113,15 @@ public function _fixtures()
 ```
 
 ## URL
-This module provide to use native URL formats of Yii2 for all codeception commands that use url for work.
-This commands allows input like:
+
+The module allows you to use Yii2 routes for all codeception commands that expect a URL:
 
 ```php
 <?php
 $I->amOnPage(['site/view','page'=>'about']);
 $I->amOnPage('index-test.php?site/index');
 $I->amOnPage('http://localhost/index-test.php?site/index');
-$I->sendAjaxPostRequest(['/user/update', 'id' => 1], ['UserForm[name]' => 'G.Hopper');
+$I->sendAjaxPostRequest(['/user/update', 'id' => 1], ['UserForm[name]' => 'G.Hopper']);
 ```
 
 ## Status
@@ -133,8 +136,8 @@ Stability: **stable**
 ### _findElements
 
 *hidden API method, expected to be used from Helper classes*
- 
-Locates element using available Codeception locator types:
+
+Locates an element using available Codeception locator types:
 
 * XPath
 * CSS
@@ -151,8 +154,8 @@ $editLinks = $this->getModule('Yii2')->_findElements(['link' => 'Edit']);
 // now you can iterate over $editLinks and check that all them have valid hrefs
 ```
 
-WebDriver module returns `Facebook\WebDriver\Remote\RemoteWebElement` instances
-PhpBrowser and Framework modules return `Symfony\Component\DomCrawler\Crawler` instances
+The WebDriver module returns `Facebook\WebDriver\Remote\RemoteWebElement` instances.
+The PhpBrowser and Framework modules return `Symfony\Component\DomCrawler\Crawler` instances.
 
  * `param` $locator
  * `return` array of interactive elements
@@ -161,9 +164,9 @@ PhpBrowser and Framework modules return `Symfony\Component\DomCrawler\Crawler` i
 ### _getResponseContent
 
 *hidden API method, expected to be used from Helper classes*
- 
-Returns content of the last response
-Use it in Helpers when you want to retrieve response of request performed by another module.
+
+Returns the content of the last response.
+Use it in Helpers when you want to retrieve the response of a request performed by another module.
 
 ```php
 <?php
@@ -182,7 +185,7 @@ public function seeResponseContains($text)
 ### _loadPage
 
 *hidden API method, expected to be used from Helper classes*
- 
+
 Opens a page with arbitrary request parameters.
 Useful for testing multi-step forms on a specific step.
 
